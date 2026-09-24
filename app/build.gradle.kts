@@ -34,6 +34,17 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        // Robolectric (widget layout tests) needs merged resources, and on JDK 21 needs
+        // access to JDK internals for the API 36 runtime.
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            it.jvmArgs(
+                "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
+                "--add-opens=java.base/java.io=ALL-UNNAMED",
+            )
+        }
+    }
 }
 
 dependencies {
@@ -55,6 +66,8 @@ dependencies {
     implementation(libs.androidx.glance.material3)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.glance.appwidget.testing)
+    testImplementation(libs.robolectric)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -28,6 +28,9 @@ class MoneyFormatter(private val locale: Locale = Locale.getDefault()) {
     private val groupingSeparator = DecimalFormatSymbols.getInstance(locale).groupingSeparator
     private val secondaryGroupSize = if (usesLakhGrouping(locale)) 2 else 3
 
+    /** The locale's decimal separator, e.g. "." (en) or "," (fr, de). */
+    val decimalSeparator: String = DecimalFormatSymbols.getInstance(locale).decimalSeparator.toString()
+
     /** With symbol, placed where the locale puts it: "₹870.00", "1 500 ¥" (fr-FR). */
     fun format(amount: BigDecimal, currency: CurrencyMeta): String {
         val formatted = currencyFormats.getOrPut(currency) { currencyFormat(currency) }.format(amount)
@@ -40,6 +43,29 @@ class MoneyFormatter(private val locale: Locale = Locale.getDefault()) {
             numberFormat(currency.fractionDigits, currency.fractionDigits)
         }.format(amount)
     )
+
+    /**
+     * A user-typed amount, grouped but otherwise exactly as entered: "1500" → "1,500",
+     * "12.5" → "12.5". Never rounded to the currency's digits, because the conversion
+     * uses the full typed value and the display must not suggest otherwise.
+     */
+    fun formatAmount(amount: BigDecimal): String =
+        group(numberFormat(amount.scale().coerceAtLeast(0), amount.scale().coerceAtLeast(0)).format(amount))
+
+    /**
+     * Raw typed input for display, keeping intermediate states: "1500" → "1,500",
+     * "12." → "12." (the trailing separator stays visible while typing on the widget
+     * keypad), ".5" → "0.5". Uses the locale's separators. Null if [raw] isn't a number yet.
+     */
+    fun formatTyped(raw: String): String? {
+        if (AmountParser.parse(raw) == null) return null
+        val normalized = raw.filter { it.isDigit() || it == '.' || it == ',' }.replace(',', '.')
+        val separatorAt = normalized.indexOf('.')
+        val integerDigits = (if (separatorAt < 0) normalized else normalized.substring(0, separatorAt))
+            .trimStart('0').ifEmpty { "0" }
+        val grouped = group(integerDigits)
+        return if (separatorAt < 0) grouped else grouped + decimalSeparator + normalized.substring(separatorAt + 1)
+    }
 
     /**
      * An exchange rate, at its own precision rather than a currency's digits:

@@ -1,6 +1,11 @@
 package com.dicereligion.rateprince.ui.navigation
 
+import android.content.Intent
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.core.util.Consumer
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -10,10 +15,24 @@ import androidx.navigation.compose.rememberNavController
 import com.dicereligion.rateprince.ui.converter.ConverterScreen
 import com.dicereligion.rateprince.ui.picker.CurrencyPickerScreen
 import com.dicereligion.rateprince.ui.settings.SettingsScreen
+import com.dicereligion.rateprince.widget.WidgetIntents
 
 @Composable
 fun RatePrinceNavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+
+    // Tapping the widget while the app is open on another screen returns to the Converter.
+    // MainActivity is singleTop, so that tap arrives here as a new intent.
+    val activity = LocalActivity.current as? ComponentActivity
+    DisposableEffect(activity, navController) {
+        val listener = Consumer<Intent> { intent ->
+            if (intent.data == WidgetIntents.CONVERTER_URI) {
+                navController.popBackStack(ConverterRoute, inclusive = false)
+            }
+        }
+        activity?.addOnNewIntentListener(listener)
+        onDispose { activity?.removeOnNewIntentListener(listener) }
+    }
 
     NavHost(
         navController = navController,

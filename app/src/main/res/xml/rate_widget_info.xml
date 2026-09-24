@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Attribute rationale is in Docs/RateTD.md §5.2. Differences from the doc:
+     no android:configure (v1 has no config screen), and maxResizeWidth is 420dp so the
+     widget can span a full row on 4-5 column launchers. previewImage is the API 30
+     fallback: a screenshot of the real 3x2 widget, since previewLayout needs API 31. -->
+<!-- API 31+ attributes are intentional: API 30 falls back to minWidth/minHeight and previewImage. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedAttribute"
+    android:description="@string/widget_description"
+    android:initialLayout="@layout/widget_loading"
+    android:maxResizeHeight="250dp"
+    android:maxResizeWidth="420dp"
+    android:minHeight="40dp"
+    android:minResizeHeight="40dp"
+    android:minResizeWidth="110dp"
+    android:minWidth="110dp"
+    android:previewImage="@drawable/widget_preview_legacy"
+    android:previewLayout="@layout/widget_preview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="2"
+    android:targetCellWidth="3"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

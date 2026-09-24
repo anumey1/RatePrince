@@ -31,13 +31,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dicereligion.rateprince.R
 import com.dicereligion.rateprince.domain.model.CurrencyMeta
+import com.dicereligion.rateprince.ui.common.AddWidgetAction
 import com.dicereligion.rateprince.ui.common.relativeTime
+import com.dicereligion.rateprince.ui.common.rememberWidgetStatus
 import com.dicereligion.rateprince.ui.navigation.CurrencySlot
 import com.dicereligion.rateprince.ui.rate.RateEditor
 import com.dicereligion.rateprince.ui.rate.rememberRateDraft
@@ -145,6 +148,27 @@ private fun SettingsContent(
                 Button(onClick = save, enabled = draft.isDirty && draft.canSave) {
                     Text(stringResource(R.string.action_save_rate))
                 }
+            }
+        }
+
+        val widgetStatus = rememberWidgetStatus()
+        if (widgetStatus != null) {
+            HorizontalDivider(Modifier.padding(top = 16.dp, bottom = 8.dp))
+            SectionHeader(stringResource(R.string.settings_section_widget))
+            Column(
+                Modifier.padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = if (widgetStatus.hasWidget) {
+                        pluralStringResource(R.plurals.settings_widget_count, widgetStatus.widgetCount, widgetStatus.widgetCount)
+                    } else {
+                        stringResource(R.string.settings_widget_none)
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                // Adding another is always allowed: each widget keeps its own amount.
+                AddWidgetAction(widgetStatus)
             }
         }
     }

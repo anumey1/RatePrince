@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Static widget colours: the picker preview, the loading skeleton and the API 30
+         background. On API 31+ the live widget uses dynamic colour from GlanceTheme instead. -->
+    <color name="widget_background">#FFEFEDF4</color>
+    <color name="widget_on_surface">#FF1B1B21</color>
+    <color name="widget_on_surface_variant">#FF46464F</color>
+    <color name="widget_primary">#FF3F4AA8</color>
+</resources>

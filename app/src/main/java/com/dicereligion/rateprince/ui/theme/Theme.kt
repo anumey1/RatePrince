@@ -10,7 +10,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val LightColorScheme = lightColorScheme(
+/** Also the widget's fallback palette below API 31. */
+internal val LightColorScheme = lightColorScheme(
     primary = IndigoLight,
     onPrimary = OnIndigoLight,
     primaryContainer = IndigoContainerLight,
@@ -32,7 +33,7 @@ private val LightColorScheme = lightColorScheme(
     outline = OutlineLight,
 )
 
-private val DarkColorScheme = darkColorScheme(
+internal val DarkColorScheme = darkColorScheme(
     primary = IndigoDark,
     onPrimary = OnIndigoDark,
     primaryContainer = IndigoContainerDark,

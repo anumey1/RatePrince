@@ -2,4 +2,19 @@
 <resources>
 
     <style name="Theme.RatePrince" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- The widget's quick-convert overlay: fully transparent window, the sheet draws its own scrim
+         so the home screen stays visible behind it. -->
+    <style name="Theme.RatePrince.QuickConvert" parent="android:Theme.Translucent.NoTitleBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
+        <!-- Draw the scrim under the status bar and cutout too, or a black band shows at the top. -->
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
 </resources>

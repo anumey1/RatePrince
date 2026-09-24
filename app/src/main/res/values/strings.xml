@@ -49,4 +49,44 @@
     <string name="picker_all">All currencies</string>
     <string name="picker_no_results">No currencies match “%1$s”</string>
     <string name="picker_selected">Selected</string>
+
+    <!-- Widget -->
+    <string name="widget_label">RatePrince</string>
+    <string name="widget_description">Convert currency at the rate you set.</string>
+    <string name="widget_tap_to_enter">Tap to enter</string>
+    <string name="widget_set_rate_title">Tap to set your rate</string>
+    <!-- JPY → INR -->
+    <string name="widget_pair">%1$s → %2$s</string>
+    <!-- ¥1,500 → ₹870.00 -->
+    <string name="widget_single_line">%1$s → %2$s</string>
+    <string name="widget_edited">Edited %1$s</string>
+    <string name="widget_amount_description">Amount, %1$s %2$s, tap to edit</string>
+    <string name="widget_amount_empty_description">Amount in %1$s, tap to enter</string>
+    <string name="widget_result_description">%1$s %2$s</string>
+    <string name="widget_keypad_show">Show keypad</string>
+    <string name="widget_keypad_hide">Hide keypad</string>
+    <string name="widget_clear">Clear</string>
+    <string name="widget_backspace">Delete</string>
+    <!-- Picker preview: a representative conversion. Not translated; numbers only. -->
+    <string name="widget_preview_local" translatable="false">JPY</string>
+    <string name="widget_preview_amount" translatable="false">¥ 1,500</string>
+    <string name="widget_preview_home" translatable="false">INR</string>
+    <string name="widget_preview_result" translatable="false">₹ 870.00</string>
+    <string name="widget_preview_caption" translatable="false">1 JPY = 0.58 INR</string>
+
+    <!-- Adding the widget from inside the app -->
+    <string name="add_widget_title">Put RatePrince on your home screen</string>
+    <string name="add_widget_body">See conversions at a glance, without opening the app.</string>
+    <string name="action_add_widget">Add widget</string>
+    <string name="add_widget_manual">Long-press an empty spot on your home screen, tap Widgets, then find RatePrince.</string>
+    <string name="settings_section_widget">Home screen widget</string>
+    <string name="settings_widget_none">No widget on your home screen yet.</string>
+    <plurals name="settings_widget_count">
+        <item quantity="one">%d widget on your home screen.</item>
+        <item quantity="other">%d widgets on your home screen.</item>
+    </plurals>
+
+    <!-- Quick convert overlay -->
+    <string name="quick_done">Done</string>
+    <string name="quick_clear">Clear</string>
 </resources>

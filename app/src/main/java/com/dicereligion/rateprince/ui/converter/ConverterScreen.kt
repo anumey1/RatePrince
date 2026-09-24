@@ -19,8 +19,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.InputTransformation
-import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -40,13 +38,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -62,10 +57,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dicereligion.rateprince.R
-import com.dicereligion.rateprince.domain.AmountParser
 import com.dicereligion.rateprince.domain.LadderRow
 import com.dicereligion.rateprince.domain.model.CurrencyMeta
+import com.dicereligion.rateprince.ui.common.AddWidgetCard
+import com.dicereligion.rateprince.ui.common.AmountInputTransformation
 import com.dicereligion.rateprince.ui.common.relativeTime
+import com.dicereligion.rateprince.ui.common.rememberWidgetStatus
 import com.dicereligion.rateprince.ui.rate.RateEditor
 import com.dicereligion.rateprince.ui.rate.rememberRateDraft
 import java.math.BigDecimal
@@ -163,18 +160,16 @@ private fun ReadyContent(
     onAmountChanged: (String) -> Unit,
     onSwap: () -> Unit,
 ) {
+    val widgetStatus = rememberWidgetStatus()
     Column(Modifier.fillMaxSize()) {
         AmountCard(state, onAmountChanged, onSwap)
         RateCaption(state)
+        // Shown until a widget exists: the end of first-run onboarding and a standing prompt.
+        if (widgetStatus != null && !widgetStatus.hasWidget) {
+            AddWidgetCard(widgetStatus, Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp))
+        }
         HorizontalDivider()
         Ladder(state.ladder, state.highlightedIndex)
-    }
-}
-
-/** Rejects keystrokes that would make the amount unparseable, so the field is always valid. */
-private object AmountInputTransformation : InputTransformation {
-    override fun TextFieldBuffer.transformInput() {
-        if (!AmountParser.isEditable(asCharSequence().toString())) revertAllChanges()
     }
 }
 
@@ -185,13 +180,11 @@ private fun AmountCard(
     onSwap: () -> Unit,
 ) {
     val amount = rememberTextFieldState()
-    val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(amount) {
         snapshotFlow { amount.text.toString() }.collect(onAmountChanged)
     }
-    LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
     Card(
         modifier = Modifier
@@ -236,7 +229,6 @@ private fun AmountCard(
                     },
                     modifier = Modifier
                         .weight(1f)
-                        .focusRequester(focusRequester)
                         .semantics { contentDescription = amountDescription },
                 )
                 IconButton(onClick = onSwap) {

@@ -49,6 +49,28 @@ class MoneyFormatterTest {
     }
 
     @Test
+    fun `typed amounts keep their own decimals`() {
+        assertEquals("1,500", us.formatAmount(BigDecimal("1500")))
+        assertEquals("12.5", us.formatAmount(BigDecimal("12.5")))
+        assertEquals("1,500.25", us.formatAmount(BigDecimal("1500.25")))
+        assertEquals("1,50,000", MoneyFormatter(Locale.forLanguageTag("en-IN")).formatAmount(BigDecimal("150000")))
+    }
+
+    @Test
+    fun `typed input keeps intermediate states for display`() {
+        assertEquals("1,500", us.formatTyped("1500"))
+        assertEquals("12.", us.formatTyped("12."))
+        assertEquals("12.50", us.formatTyped("12.50"))
+        assertEquals("0.5", us.formatTyped(".5"))
+        assertEquals("1,234,567.8", us.formatTyped("1234567,8"))
+        assertEquals("0", us.formatTyped("000"))
+        assertEquals("1.500,25", MoneyFormatter(Locale.GERMANY).formatTyped("1500.25"))
+        assertEquals("1,50,000.", MoneyFormatter(Locale.forLanguageTag("en-IN")).formatTyped("150000."))
+        assertEquals(null, us.formatTyped(""))
+        assertEquals(null, us.formatTyped("."))
+    }
+
+    @Test
     fun `letter symbols get a no-break space before digits`() {
         assertEquals("Rs 1,000.00", us.format(BigDecimal(1000), LKR))
     }
