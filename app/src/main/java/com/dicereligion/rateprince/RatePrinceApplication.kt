@@ -4,7 +4,9 @@ import android.app.Application
 import android.content.Context
 import com.dicereligion.rateprince.data.CurrencyCatalog
 import com.dicereligion.rateprince.data.RateConfigRepository
+import com.dicereligion.rateprince.data.RecentCurrenciesRepository
 import com.dicereligion.rateprince.data.rateConfigStore
+import com.dicereligion.rateprince.data.recentCurrenciesStore
 import com.dicereligion.rateprince.domain.ConversionEngine
 
 class RatePrinceApplication : Application() {
@@ -29,6 +31,8 @@ class AppContainer(context: Context) {
         // Phase 3 wires widget refresh here: RatePrinceWidget().updateAll(appContext)
         onConfigChanged = {},
     )
+
+    val recentCurrencies = RecentCurrenciesRepository(appContext.recentCurrenciesStore)
 
     val conversionEngine = ConversionEngine()
 

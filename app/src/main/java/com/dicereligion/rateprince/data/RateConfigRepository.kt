@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStore
+import com.dicereligion.rateprince.domain.invertRate
 import com.dicereligion.rateprince.domain.model.CurrencyCode
 import com.dicereligion.rateprince.domain.model.RateConfig
 import com.dicereligion.rateprince.domain.model.RateSource
@@ -13,8 +14,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
 
 val Context.rateConfigStore: DataStore<StoredRateConfig> by dataStore(
     fileName = "rate_config.json",
@@ -92,7 +91,7 @@ class RateConfigRepository(
                 homeCurrency = it.localCurrency,
                 localCurrency = it.homeCurrency,
                 // An unconfigured rate stays unconfigured.
-                rate = rate?.let(::invert)?.toPlainString() ?: "0",
+                rate = rate?.let(::invertRate)?.toPlainString() ?: "0",
                 updatedAtMillis = now(),
             )
         }
@@ -101,14 +100,5 @@ class RateConfigRepository(
 
     private companion object {
         val MAX_RATE: BigDecimal = BigDecimal.TEN.pow(12)
-
-        /**
-         * 10 significant digits: enough that inverting twice returns the original rate,
-         * bounded so the stored string doesn't grow on repeated swaps.
-         */
-        val INVERT_CONTEXT = MathContext(10, RoundingMode.HALF_UP)
-
-        fun invert(rate: BigDecimal): BigDecimal =
-            BigDecimal.ONE.divide(rate, INVERT_CONTEXT).stripTrailingZeros()
     }
 }

@@ -1,7 +1,52 @@
 <resources>
     <string name="app_name">RatePrince</string>
+
+    <!-- Common -->
+    <string name="action_back">Navigate up</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_swap">Swap currencies</string>
+    <string name="action_save_rate">Save rate</string>
+    <string name="time_just_now">just now</string>
+
+    <!-- Converter -->
+    <string name="converter_amount_description">Amount in %1$s</string>
+    <string name="converter_result_description">Converted amount in %1$s</string>
+    <string name="converter_result_empty">—</string>
+    <string name="converter_amount_placeholder">0</string>
+    <!-- 1 JPY = 0.58 INR -->
+    <string name="rate_caption">1 %1$s = %2$s %3$s</string>
+    <!-- Appended to the rate caption: "· edited 2 days ago" -->
+    <string name="rate_caption_edited">%1$s · edited %2$s</string>
+    <!-- Ladder row read as one phrase by TalkBack: "¥1 is ₹0.58" -->
+    <string name="ladder_row_description">%1$s is %2$s</string>
+
+    <!-- First run: rate not set -->
+    <string name="needs_rate_title">Set your exchange rate</string>
+    <string name="needs_rate_body">Enter the rate you actually got — at the exchange counter or on your card statement.</string>
+    <string name="action_change_currencies">Change currencies</string>
+
+    <!-- Rate editor -->
+    <string name="rate_editor_prefix">1 %1$s =</string>
+    <string name="rate_editor_description">%2$s for 1 %1$s</string>
+    <string name="rate_error">Enter a rate above 0</string>
+
+    <!-- Settings -->
     <string name="settings_title">Settings</string>
+    <string name="settings_section_currencies">Currencies</string>
+    <string name="settings_section_rate">Exchange rate</string>
     <string name="settings_home_currency">Home currency</string>
+    <string name="settings_home_hint">The currency you think in</string>
     <string name="settings_local_currency">Local currency</string>
-    <string name="action_back">Back</string>
+    <string name="settings_local_hint">The currency where you are</string>
+    <string name="settings_swap">Swap home and local</string>
+    <string name="settings_rate_age">Last edited %1$s</string>
+    <string name="settings_rate_unset">Not set yet</string>
+
+    <!-- Currency picker -->
+    <string name="picker_search_hint">Search currencies</string>
+    <string name="picker_clear_search">Clear search</string>
+    <string name="picker_recent">Recent</string>
+    <string name="picker_all">All currencies</string>
+    <string name="picker_no_results">No currencies match “%1$s”</string>
+    <string name="picker_selected">Selected</string>
 </resources>
