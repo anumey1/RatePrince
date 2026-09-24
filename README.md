@@ -26,7 +26,7 @@ offline.
 
 ### The app
 
-- **Converter**: amount entry with a live result, a swap button, and the 46 reference amounts
+- **Converter**: amount entry with a live result, a swap button, and 46 reference amounts
   (¥1, ¥2, ¥5 … ¥100,000) as a compact grid — local amount over home amount — with the one
   nearest your amount highlighted.
 - **First run**: a "Set your exchange rate" card; two taps to a working converter.
@@ -47,25 +47,16 @@ offline.
 - Changing a currency clears the rate, so a rate meant for one currency is never applied to
   another. Swapping the pair inverts the rate instead.
 
-## How it's built
+## Structure
 
-- Kotlin, Jetpack Compose for the app, [Glance](https://developer.android.com/develop/ui/compose/glance)
-  for the widget.
-- Min SDK 30 (Android 11), target SDK 36.
-- Settings are stored with DataStore as JSON; the rate is saved as text, never as a float.
-- One Gradle module with packages `domain/` (pure Kotlin, no Android imports — enforced by a
-  test), `data/`, `ui/` and `widget/`.
+One Gradle module, `app`, package `com.dicereligion.rateprince`:
 
-The original technical design is in [`Docs/RateTD.md`](Docs/RateTD.md). It was written when
-the app was called "Rate".
+| Package | What's in it |
+| :--- | :--- |
+| `domain/` | Pure Kotlin, no Android imports: the conversion engine, amount and rate parsing, number formatting, the reference amounts, and the currency and rate models |
+| `data/` | The bundled currency catalogue, the saved rate and currency pair (DataStore, JSON), and recent currency picks |
+| `ui/` | The Compose screens — converter, settings, currency picker — plus the quick-convert pop-up, navigation and theme |
+| `widget/` | The Glance home-screen widget: its layouts, keypad, per-widget state, and adding it from the app |
 
-## Building
-
-Requires JDK 21 (Android Studio's bundled JDK works).
-
-```sh
-./gradlew assembleRelease      # optimised build (R8), signed with the local debug key
-./gradlew assembleDebug        # debug build
-./gradlew testDebugUnitTest    # unit tests, incl. widget layout tests via Robolectric
-./gradlew lintDebug            # lint
-```
+Built with Kotlin, Jetpack Compose and [Glance](https://developer.android.com/develop/ui/compose/glance).
+Runs on Android 11 (API 30) and up.
