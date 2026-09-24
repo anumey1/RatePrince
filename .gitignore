@@ -1,15 +1,81 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# ---------------------------------------------------------------------------
+# Gradle / Kotlin
+# ---------------------------------------------------------------------------
+.gradle/
+build/
+# Kotlin 2.x compiler session data and error reports
+.kotlin/
+
+# ---------------------------------------------------------------------------
+# Local configuration (SDK path, secrets)
+# ---------------------------------------------------------------------------
 local.properties
+keystore.properties
+secrets.properties
+
+# ---------------------------------------------------------------------------
+# Signing keys and build outputs
+# ---------------------------------------------------------------------------
+*.jks
+*.keystore
+!debug.keystore
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+/app/release/
+/app/debug/
+
+# ---------------------------------------------------------------------------
+# Native builds (not used yet, but Android Studio creates these if enabled)
+# ---------------------------------------------------------------------------
+.externalNativeBuild/
+.cxx/
+
+# ---------------------------------------------------------------------------
+# Android Studio / IntelliJ
+# Shared project settings (compiler.xml, gradle.xml, misc.xml, vcs.xml,
+# runConfigurations.xml, inspectionProfiles/, codeStyles/) stay tracked.
+# Per-user and machine-specific state is ignored.
+# ---------------------------------------------------------------------------
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries/
+.idea/shelf/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/modules/
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/deploymentTargetSelector.xml
+.idea/deploymentTargetDropDown.xml
+.idea/deviceManager.xml
+.idea/appInsightsSettings.xml
+.idea/androidTestResultsUserPreferences.xml
+.idea/studiobot.xml
+.idea/other.xml
+.idea/sonarlint/
+.idea/httpRequests/
+.idea/copilot*
+
+# ---------------------------------------------------------------------------
+# Profiling, captures, logs
+# ---------------------------------------------------------------------------
+captures/
+*.hprof
+*.trace
+*.log
+
+# ---------------------------------------------------------------------------
+# OS and editor noise
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*~
+.vscode/
