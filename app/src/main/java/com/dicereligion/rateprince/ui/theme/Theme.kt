@@ -1,6 +1,5 @@
 package com.dicereligion.rateprince.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,26 +10,48 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+private val LightColorScheme = lightColorScheme(
+    primary = IndigoLight,
+    onPrimary = OnIndigoLight,
+    primaryContainer = IndigoContainerLight,
+    onPrimaryContainer = OnIndigoContainerLight,
+    secondary = SlateLight,
+    onSecondary = OnSlateLight,
+    secondaryContainer = SlateContainerLight,
+    onSecondaryContainer = OnSlateContainerLight,
+    tertiary = GoldLight,
+    onTertiary = OnGoldLight,
+    tertiaryContainer = GoldContainerLight,
+    onTertiaryContainer = OnGoldContainerLight,
+    background = SurfaceLight,
+    onBackground = OnSurfaceLight,
+    surface = SurfaceLight,
+    onSurface = OnSurfaceLight,
+    surfaceVariant = SurfaceVariantLight,
+    onSurfaceVariant = OnSurfaceVariantLight,
+    outline = OutlineLight,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+private val DarkColorScheme = darkColorScheme(
+    primary = IndigoDark,
+    onPrimary = OnIndigoDark,
+    primaryContainer = IndigoContainerDark,
+    onPrimaryContainer = OnIndigoContainerDark,
+    secondary = SlateDark,
+    onSecondary = OnSlateDark,
+    secondaryContainer = SlateContainerDark,
+    onSecondaryContainer = OnSlateContainerDark,
+    tertiary = GoldDark,
+    onTertiary = OnGoldDark,
+    tertiaryContainer = GoldContainerDark,
+    onTertiaryContainer = OnGoldContainerDark,
+    background = SurfaceDark,
+    onBackground = OnSurfaceDark,
+    surface = SurfaceDark,
+    onSurface = OnSurfaceDark,
+    surfaceVariant = SurfaceVariantDark,
+    onSurfaceVariant = OnSurfaceVariantDark,
+    outline = OutlineDark,
 )
 
 @Composable
