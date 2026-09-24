@@ -9,8 +9,8 @@ object LadderSpec {
      * 46 rows, ascending, treated as an immutable contract.
      *
      * Tuned for a local currency in the JPY/KRW/VND magnitude band. For USD/EUR the
-     * rows above ~5,000 are dead weight; a magnitude-aware generator is a Phase 6
-     * candidate and can replace this without touching the UI.
+     * rows above ~5,000 are dead weight; a magnitude-aware generator could replace this
+     * without touching the UI.
      */
     val DEFAULT: List<Int> = listOf(
         1, 2, 5, 10, 20, 30, 40, 50,

@@ -4,19 +4,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -38,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -51,7 +56,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -282,55 +286,70 @@ private fun RateCaption(state: ConverterUiState.Ready) {
     )
 }
 
+/**
+ * The 46 reference amounts as a wrapping grid of compact cells, each only as wide as its
+ * text: local amount (greyed) over a rule over the home amount. Far denser than one row
+ * per amount, so most of the ladder fits on screen at once.
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Ladder(rows: List<LadderRow>, highlightedIndex: Int) {
-    val listState = rememberLazyListState()
-    // Keep the row nearest the typed amount in view, with one row of context above it.
+    val highlightRequester = remember { BringIntoViewRequester() }
+    // Keep the cell nearest the typed amount in view.
     LaunchedEffect(highlightedIndex) {
-        if (highlightedIndex >= 0) listState.animateScrollToItem((highlightedIndex - 1).coerceAtLeast(0))
+        if (highlightedIndex >= 0) highlightRequester.bringIntoView()
     }
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 8.dp),
+    FlowRow(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        itemsIndexed(rows, key = { _, row -> row.localAmount.toPlainString() }) { index, row ->
-            LadderRowItem(row, highlighted = index == highlightedIndex)
+        rows.forEachIndexed { index, row ->
+            val highlighted = index == highlightedIndex
+            LadderCell(
+                row = row,
+                highlighted = highlighted,
+                modifier = if (highlighted) Modifier.bringIntoViewRequester(highlightRequester) else Modifier,
+            )
         }
     }
 }
 
 @Composable
-private fun LadderRowItem(row: LadderRow, highlighted: Boolean) {
+private fun LadderCell(row: LadderRow, highlighted: Boolean, modifier: Modifier = Modifier) {
     val description = stringResource(R.string.ladder_row_description, row.localLabel, row.homeLabel)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .then(
-                if (highlighted) Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
-                else Modifier
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            // As wide as the longer label, so the rule spans exactly the text.
+            .width(IntrinsicSize.Max)
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                if (highlighted) MaterialTheme.colorScheme.secondaryContainer
+                else MaterialTheme.colorScheme.surfaceContainer
             )
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .clearAndSetSemantics { contentDescription = description },
     ) {
         Text(
             text = row.localLabel,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
         )
-        Icon(
-            painterResource(R.drawable.ic_arrow_forward),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(16.dp),
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 2.dp),
+            color = MaterialTheme.colorScheme.outlineVariant,
         )
         Text(
             text = row.homeLabel,
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = if (highlighted) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
         )
     }
 }

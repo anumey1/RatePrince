@@ -5,7 +5,6 @@ import com.dicereligion.rateprince.domain.AmountParser
 /** Pure editing rules for the on-widget keypad (Option B in the design doc). */
 object KeypadInput {
     const val DECIMAL = "."
-    val DIGITS = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
 
     /**
      * Appends [key] to [current]. Returns null when the result wouldn't be a valid amount

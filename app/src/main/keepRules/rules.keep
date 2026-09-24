@@ -1,12 +1,9 @@
-# Add project specific R8 rules here.
-# AGP will combine all keep rule files in src/main/keepRules to pass to R8
+# R8 keep rules for RatePrince. AGP combines every file in src/main/keepRules/.
 #
-# For more details, see
-#   https://d.android.com/r/tools/r8/keep-rules
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# R8 full mode (the default) keeps a class named by a bare "-keep class" rule but NOT its
+# constructor. Glance's consumer rule for action callbacks is written that way, and Glance
+# instantiates callbacks by class name via reflection, so without this the widget's swap
+# button crashes in release builds.
+-keep class * implements androidx.glance.appwidget.action.ActionCallback {
+    <init>();
+}

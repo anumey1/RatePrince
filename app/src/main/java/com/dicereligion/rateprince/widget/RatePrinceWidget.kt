@@ -5,9 +5,12 @@ import android.content.Context
 import android.os.Build
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -15,7 +18,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceTheme
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -55,7 +57,12 @@ class RatePrinceWidget : GlanceAppWidget() {
 
     override val stateDefinition = PreferencesGlanceStateDefinition
 
-    override val sizeMode = SizeMode.Responsive(setOf(SIZE_NARROW, SIZE_MEDIUM, SIZE_WIDE, SIZE_TALL))
+    /**
+     * Exact, not Responsive: Responsive composes and ships every declared size on every
+     * update (4x the work per keypad tap). Exact renders only the real size; resizing is
+     * rare and just costs one extra update.
+     */
+    override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val repository = context.container.rateConfigRepository
@@ -69,9 +76,10 @@ class RatePrinceWidget : GlanceAppWidget() {
             WidgetRoot(
                 context = context,
                 config = config,
-                rawAmount = currentState(WidgetStateKeys.AMOUNT_INPUT).orEmpty(),
-                keypadOpen = currentState(WidgetStateKeys.KEYPAD_OPEN) ?: false,
+                storedAmount = currentState(WidgetStateKeys.AMOUNT_INPUT).orEmpty(),
+                storedKeypadOpen = currentState(WidgetStateKeys.KEYPAD_OPEN) ?: false,
                 appWidgetId = appWidgetId,
+                glanceId = id,
             )
         }
     }
@@ -90,9 +98,10 @@ class RatePrinceWidget : GlanceAppWidget() {
             WidgetRoot(
                 context = context,
                 config = config,
-                rawAmount = PREVIEW_AMOUNT,
-                keypadOpen = false,
+                storedAmount = PREVIEW_AMOUNT,
+                storedKeypadOpen = false,
                 appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID,
+                glanceId = null,
             )
         }
     }
@@ -101,7 +110,6 @@ class RatePrinceWidget : GlanceAppWidget() {
         val SIZE_NARROW = DpSize(110.dp, 40.dp)    // 2x1
         val SIZE_MEDIUM = DpSize(180.dp, 110.dp)   // 3x2 — default
         val SIZE_WIDE = DpSize(320.dp, 110.dp)     // 5x2
-        val SIZE_TALL = DpSize(250.dp, 250.dp)     // 4x4 — keypad-eligible
 
         /** Shown in pin dialogs and generated previews. */
         const val PREVIEW_AMOUNT = "1500"
@@ -116,21 +124,50 @@ class RatePrinceWidget : GlanceAppWidget() {
     }
 }
 
-/** Shared by the live widget and the generated preview. */
+private class SavedWidgetState(var amount: String, var keypadOpen: Boolean)
+
+/**
+ * Shared by the live widget and the generated preview.
+ *
+ * The amount and keypad toggle live in composition state so keypad taps (in-session
+ * lambdas) redraw immediately; each change is then saved to the widget's state file in
+ * the background ([glanceId] null = preview, nothing to save). When the stored value
+ * changes from outside — the overlay committing a new amount — the local copy resets to it.
+ */
 @Composable
 private fun WidgetRoot(
     context: Context,
     config: RateConfig,
-    rawAmount: String,
-    keypadOpen: Boolean,
+    storedAmount: String,
+    storedKeypadOpen: Boolean,
     appWidgetId: Int,
+    glanceId: GlanceId?,
 ) {
+    var amount by remember(storedAmount) { mutableStateOf(storedAmount) }
+    var keypadOpen by remember(storedKeypadOpen) { mutableStateOf(storedKeypadOpen) }
+
+    if (glanceId != null) {
+        // What's on disk, so returning to an earlier value (type "5", then delete it) still saves.
+        val saved = remember(storedAmount, storedKeypadOpen) { SavedWidgetState(storedAmount, storedKeypadOpen) }
+        LaunchedEffect(amount, keypadOpen) {
+            if (amount != saved.amount || keypadOpen != saved.keypadOpen) {
+                // Write without update(): the session already shows this state.
+                updateAppWidgetState(context, glanceId) { prefs ->
+                    prefs[WidgetStateKeys.AMOUNT_INPUT] = amount
+                    prefs[WidgetStateKeys.KEYPAD_OPEN] = keypadOpen
+                }
+                saved.amount = amount
+                saved.keypadOpen = keypadOpen
+            }
+        }
+    }
+
     val container = context.container
     // Rebuilt only when an input changes; strings and formatting follow the current locale.
-    val model = remember(config, rawAmount, keypadOpen) {
+    val model = remember(config, amount, keypadOpen) {
         WidgetModel.build(
             config = config,
-            rawAmount = rawAmount,
+            rawAmount = amount,
             keypadOpen = keypadOpen,
             local = container.currencyCatalog.meta(config.localCurrency),
             home = container.currencyCatalog.meta(config.homeCurrency),
@@ -140,17 +177,15 @@ private fun WidgetRoot(
             formatDate = { millis -> shortDate(context, millis) },
         )
     }
-    val actions = remember(appWidgetId, rawAmount) {
-        WidgetActions(
-            openApp = actionStartActivity(WidgetIntents.openConverter(context)),
-            editAmount = actionStartActivity(WidgetIntents.quickConvert(context, appWidgetId, rawAmount)),
-            swap = actionRunCallback<SwapPairAction>(),
-            toggleKeypad = actionRunCallback<ToggleKeypadAction>(),
-            clear = actionRunCallback<ClearAmountAction>(),
-            backspace = actionRunCallback<BackspaceAction>(),
-            key = { key -> actionRunCallback<AppendDigitAction>(actionParametersOf(AppendDigitAction.KEY to key)) },
-        )
-    }
+    val actions = WidgetActions(
+        openApp = actionStartActivity(WidgetIntents.openConverter(context)),
+        editAmount = actionStartActivity(WidgetIntents.quickConvert(context, appWidgetId, amount)),
+        swap = actionRunCallback<SwapPairAction>(),
+        onToggleKeypad = { keypadOpen = !keypadOpen },
+        onKey = { key -> KeypadInput.append(amount, key)?.let { amount = it } },
+        onBackspace = { amount = KeypadInput.backspace(amount) },
+        onClear = { amount = "" },
+    )
     GlanceTheme(colors = glanceColors()) {
         RatePrinceWidgetContent(model, actions)
     }

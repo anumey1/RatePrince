@@ -80,6 +80,8 @@
     <string name="action_add_widget">Add widget</string>
     <string name="add_widget_manual">Long-press an empty spot on your home screen, tap Widgets, then find RatePrince.</string>
     <string name="settings_section_widget">Home screen widget</string>
+    <!-- RatePrince v0.1 (1) -->
+    <string name="settings_version">%1$s v%2$s (%3$d)</string>
     <string name="settings_widget_none">No widget on your home screen yet.</string>
     <plurals name="settings_widget_count">
         <item quantity="one">%d widget on your home screen.</item>

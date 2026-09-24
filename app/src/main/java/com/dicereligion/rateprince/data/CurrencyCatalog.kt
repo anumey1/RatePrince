@@ -20,8 +20,6 @@ class CurrencyCatalog(entries: List<CurrencyMeta>) {
 
     fun meta(code: CurrencyCode): CurrencyMeta = byCode[code] ?: fallbackFromJdk(code)
 
-    fun fractionDigits(code: CurrencyCode): Int = meta(code).fractionDigits
-
     /** Code-prefix matches first, then name-substring matches. Blank query returns [all]. */
     fun search(query: String): List<CurrencyMeta> {
         val q = query.trim()

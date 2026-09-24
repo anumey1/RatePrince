@@ -46,10 +46,9 @@ class WidgetModelTest {
     }
 
     @Test
-    fun `keypad state and decimal key label come through`() {
+    fun `keypad state comes through`() {
         val model = jpyToInrModel("1", keypadOpen = true) as WidgetModel.Ready
         assertTrue(model.keypadOpen)
-        assertEquals(".", model.decimalSeparator)
     }
 
     @Test

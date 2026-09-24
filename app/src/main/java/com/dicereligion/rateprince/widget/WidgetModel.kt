@@ -61,8 +61,6 @@ sealed interface WidgetModel {
         val swapDescription: String,
         /** This instance's keypad toggle; only honoured at keypad-eligible sizes. */
         val keypadOpen: Boolean,
-        /** Label for the keypad's decimal key, in the user's locale. */
-        val decimalSeparator: String,
         val showKeypadDescription: String,
         val hideKeypadDescription: String,
         val clearDescription: String,
@@ -116,7 +114,6 @@ sealed interface WidgetModel {
                 resultDescription = strings.resultDescriptionFormat.format(resultText, home.displayName),
                 swapDescription = strings.swapDescription,
                 keypadOpen = keypadOpen,
-                decimalSeparator = formatter.decimalSeparator,
                 showKeypadDescription = strings.showKeypadDescription,
                 hideKeypadDescription = strings.hideKeypadDescription,
                 clearDescription = strings.clearDescription,

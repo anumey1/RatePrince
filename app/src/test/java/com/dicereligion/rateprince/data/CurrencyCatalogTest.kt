@@ -26,10 +26,10 @@ class CurrencyCatalogTest {
 
     @Test
     fun `fraction digits match ISO 4217 for the reference currencies`() {
-        assertEquals(0, catalog.fractionDigits(CurrencyCode("JPY")))
-        assertEquals(2, catalog.fractionDigits(CurrencyCode("INR")))
-        assertEquals(3, catalog.fractionDigits(CurrencyCode("KWD")))
-        assertEquals(2, catalog.fractionDigits(CurrencyCode("IDR")))
+        assertEquals(0, catalog.meta(CurrencyCode("JPY")).fractionDigits)
+        assertEquals(2, catalog.meta(CurrencyCode("INR")).fractionDigits)
+        assertEquals(3, catalog.meta(CurrencyCode("KWD")).fractionDigits)
+        assertEquals(2, catalog.meta(CurrencyCode("IDR")).fractionDigits)
     }
 
     @Test

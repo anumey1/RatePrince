@@ -2,14 +2,16 @@ package com.dicereligion.rateprince.widget
 
 import android.content.Context
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.testing.unit.hasRunCallbackClickAction
 import androidx.glance.appwidget.testing.unit.runGlanceAppWidgetUnitTest
+import androidx.glance.testing.unit.assertHasClickAction
 import androidx.glance.testing.unit.hasContentDescription
+import androidx.glance.testing.unit.hasContentDescriptionEqualTo
 import androidx.glance.testing.unit.hasText
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,6 +27,9 @@ import org.robolectric.annotation.Config
 @Config(sdk = [30, 36])
 class WidgetLayoutTest {
 
+    /** 4x4. Not a preview size, but the widget renders at any real size (SizeMode.Exact). */
+    private val SIZE_TALL = DpSize(250.dp, 250.dp)
+
     private class OpenApp : ActionCallback {
         override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) = Unit
     }
@@ -37,14 +42,14 @@ class WidgetLayoutTest {
         openApp = actionRunCallback<OpenApp>(),
         editAmount = actionRunCallback<EditAmount>(),
         swap = actionRunCallback<SwapPairAction>(),
-        toggleKeypad = actionRunCallback<ToggleKeypadAction>(),
-        clear = actionRunCallback<ClearAmountAction>(),
-        backspace = actionRunCallback<BackspaceAction>(),
-        key = { actionRunCallback<AppendDigitAction>(actionParametersOf(AppendDigitAction.KEY to it)) },
+        onToggleKeypad = {},
+        onKey = {},
+        onBackspace = {},
+        onClear = {},
     )
 
-    private fun hasKey(key: String) =
-        hasRunCallbackClickAction<AppendDigitAction>(actionParametersOf(AppendDigitAction.KEY to key))
+    /** Keypad keys are in-session lambdas; they're found by their exact content description. */
+    private fun key(description: String) = hasContentDescriptionEqualTo(description)
 
     @Test
     fun unconfigured_state_prompts_for_rate() = runGlanceAppWidgetUnitTest {
@@ -104,45 +109,53 @@ class WidgetLayoutTest {
     }
 
     @Test
-    fun tall_size_renders_stacked_with_keypad_toggle() = runGlanceAppWidgetUnitTest {
-        setAppWidgetSize(RatePrinceWidget.SIZE_TALL)
+    fun stacked_sizes_offer_the_keypad_toggle() = runGlanceAppWidgetUnitTest {
+        setAppWidgetSize(RatePrinceWidget.SIZE_MEDIUM)
         provideComposable { RatePrinceWidgetContent(jpyToInrModel("1500"), actions) }
 
-        onNode(hasText("1,500")).assertExists()
         onNode(hasText("870.00")).assertExists()
-        onNode(hasRunCallbackClickAction<EditAmount>()).assertExists()
-        onNode(hasRunCallbackClickAction<SwapPairAction>()).assertDoesNotExist()
-        onNode(hasContentDescription("Show keypad")).assertExists()
-        onNode(hasRunCallbackClickAction<ToggleKeypadAction>()).assertExists()
-        onNode(hasKey("7")).assertDoesNotExist()
+        onNode(key("Show keypad")).assertHasClickAction()
+        onNode(key("7")).assertDoesNotExist()
     }
 
     @Test
-    fun tall_size_with_keypad_open_renders_every_key() = runGlanceAppWidgetUnitTest {
-        setAppWidgetSize(RatePrinceWidget.SIZE_TALL)
+    fun keypad_fits_the_default_3x2_widget() = runGlanceAppWidgetUnitTest {
+        setAppWidgetSize(RatePrinceWidget.SIZE_MEDIUM)
         provideComposable { RatePrinceWidgetContent(jpyToInrModel("12.", keypadOpen = true), actions) }
 
-        KeypadInput.DIGITS.forEach { onNode(hasKey(it)).assertExists() }
-        onNode(hasKey(KeypadInput.DECIMAL)).assertExists()
-        onNode(hasRunCallbackClickAction<BackspaceAction>()).assertExists()
-        onNode(hasRunCallbackClickAction<ClearAmountAction>()).assertExists()
-        onNode(hasContentDescription("Hide keypad")).assertExists()
-        // The header shows the half-typed amount with its separator, and the live result.
+        // Phone-style 3x4 grid: 1-9, then C 0 ⌫.
+        listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0").forEach { onNode(key(it)).assertHasClickAction() }
+        onNode(key("Clear")).assertHasClickAction()
+        onNode(key("Delete")).assertHasClickAction()
+        onNode(key("Hide keypad")).assertHasClickAction()
+        onNode(key(".")).assertDoesNotExist()
+        // Left panel: half-typed amount (with its separator) over the live result.
         onNode(hasText("¥ 12.")).assertExists()
         onNode(hasText("₹ 6.96")).assertExists()
-        // Typing happens on the keypad, so no overlay action at this size.
-        onNode(hasRunCallbackClickAction<EditAmount>()).assertDoesNotExist()
+        // Tapping the amount opens the overlay, which is where the decimal key lives.
+        onNode(hasRunCallbackClickAction<EditAmount>()).assertExists()
     }
 
     @Test
-    fun keypad_never_shows_below_the_size_gate() = runGlanceAppWidgetUnitTest {
-        // keypad_open is per-instance state that survives resizing; a smaller size must ignore it.
-        setAppWidgetSize(RatePrinceWidget.SIZE_MEDIUM)
+    fun keypad_also_opens_at_wide_and_tall_sizes() {
+        listOf(RatePrinceWidget.SIZE_WIDE, SIZE_TALL).forEach { size ->
+            runGlanceAppWidgetUnitTest {
+                setAppWidgetSize(size)
+                provideComposable { RatePrinceWidgetContent(jpyToInrModel("1", keypadOpen = true), actions) }
+                onNode(key("7")).assertHasClickAction()
+            }
+        }
+    }
+
+    @Test
+    fun keypad_never_shows_at_one_row() = runGlanceAppWidgetUnitTest {
+        // keypad_open is per-instance state that survives resizing; 2x1 must ignore it.
+        setAppWidgetSize(RatePrinceWidget.SIZE_NARROW)
         provideComposable { RatePrinceWidgetContent(jpyToInrModel("1500", keypadOpen = true), actions) }
 
-        onNode(hasKey("7")).assertDoesNotExist()
-        onNode(hasRunCallbackClickAction<ToggleKeypadAction>()).assertDoesNotExist()
-        onNode(hasText("870.00")).assertExists()
+        onNode(key("7")).assertDoesNotExist()
+        onNode(key("Show keypad")).assertDoesNotExist()
+        onNode(hasText("¥1,500 → ₹870.00")).assertExists()
     }
 
     @Test
@@ -150,8 +163,8 @@ class WidgetLayoutTest {
         listOf(
             RatePrinceWidget.SIZE_MEDIUM,
             RatePrinceWidget.SIZE_WIDE,
-            RatePrinceWidget.SIZE_TALL,
-            DpSize(RatePrinceWidget.SIZE_WIDE.width, RatePrinceWidget.SIZE_TALL.height),
+            SIZE_TALL,
+            DpSize(RatePrinceWidget.SIZE_WIDE.width, SIZE_TALL.height),
         ).forEach { size ->
             runGlanceAppWidgetUnitTest {
                 setAppWidgetSize(size)

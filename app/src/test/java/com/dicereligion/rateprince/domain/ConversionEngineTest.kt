@@ -61,10 +61,4 @@ class ConversionEngineTest {
         val result = engine.convert(BigDecimal(3), config(JPY, INR, "0.58"), INR.fractionDigits)
         assertEquals(BigDecimal("1.74"), result)
     }
-
-    @Test
-    fun `inverse conversion goes home to local`() {
-        val result = engine.convertInverse(BigDecimal(870), config(JPY, INR, "0.58"), JPY.fractionDigits)
-        assertEquals(BigDecimal("1500"), result)
-    }
 }

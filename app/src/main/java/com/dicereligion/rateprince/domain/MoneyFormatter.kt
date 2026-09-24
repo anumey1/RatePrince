@@ -29,7 +29,7 @@ class MoneyFormatter(private val locale: Locale = Locale.getDefault()) {
     private val secondaryGroupSize = if (usesLakhGrouping(locale)) 2 else 3
 
     /** The locale's decimal separator, e.g. "." (en) or "," (fr, de). */
-    val decimalSeparator: String = DecimalFormatSymbols.getInstance(locale).decimalSeparator.toString()
+    private val decimalSeparator: String = DecimalFormatSymbols.getInstance(locale).decimalSeparator.toString()
 
     /** With symbol, placed where the locale puts it: "₹870.00", "1 500 ¥" (fr-FR). */
     fun format(amount: BigDecimal, currency: CurrencyMeta): String {

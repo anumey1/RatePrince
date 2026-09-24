@@ -26,13 +26,4 @@ class ConversionEngine {
     ): BigDecimal =
         amount.multiply(config.rate, mathContext)
             .setScale(targetFractionDigits, RoundingMode.HALF_UP)
-
-    /** Home → local. */
-    fun convertInverse(
-        amount: BigDecimal,
-        config: RateConfig,
-        targetFractionDigits: Int,
-    ): BigDecimal =
-        amount.divide(config.rate, mathContext)
-            .setScale(targetFractionDigits, RoundingMode.HALF_UP)
 }

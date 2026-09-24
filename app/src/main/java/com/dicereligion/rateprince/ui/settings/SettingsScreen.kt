@@ -33,9 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dicereligion.rateprince.BuildConfig
 import com.dicereligion.rateprince.R
 import com.dicereligion.rateprince.domain.model.CurrencyMeta
 import com.dicereligion.rateprince.ui.common.AddWidgetAction
@@ -171,6 +173,21 @@ private fun SettingsContent(
                 AddWidgetAction(widgetStatus)
             }
         }
+
+        Text(
+            text = stringResource(
+                R.string.settings_version,
+                stringResource(R.string.app_name),
+                BuildConfig.VERSION_NAME,
+                BuildConfig.VERSION_CODE,
+            ),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 24.dp),
+        )
     }
 }
 

@@ -15,16 +15,20 @@ android {
         minSdk = 30
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            // R8: shrink, optimise and obfuscate code, and drop unused resources. This is the
+            // build that goes on the phone. Keep rules live in src/main/keepRules/.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            // Not published, so sign with the local debug key. This also lets a release
+            // build install over a debug build without losing the app's data.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -33,6 +37,8 @@ android {
     }
     buildFeatures {
         compose = true
+        // For the version label in Settings.
+        buildConfig = true
     }
     testOptions {
         // Robolectric (widget layout tests) needs merged resources, and on JDK 21 needs
@@ -64,6 +70,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
+    implementation(libs.androidx.work.runtime)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.glance.appwidget.testing)
